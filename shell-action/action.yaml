@@ -30,6 +30,7 @@ runs:
         commands: ${{ inputs.commands }}
         grouping: ${{ inputs.grouping }}
       run: |-
+        exit_code=1
         exec 5>&1
         while read -r cmd;
         do
@@ -39,7 +40,7 @@ runs:
               echo "::group::$escaped"
             fi;
             out=$(eval $cmd 2>&1 | tee >(cat - >&5) ; exit ${PIPESTATUS[0]})
-            exit_code = $?
+            exit_code=$?
             [[ "$grouping" = "true" ]] && echo "::endgroup::"
             if [ $exit_code -ne 0 ]; then
               break;
