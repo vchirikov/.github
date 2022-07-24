@@ -27,7 +27,7 @@ inputs:
   token:
     required: false
     description: GitHub Token to create comments.
-    default: ${{ secrets.GITHUB_TOKEN }}
+    default: ""
 
 outputs:
   out:
@@ -46,7 +46,7 @@ runs:
 
     - name: Run the commands
       id: cmd
-      uses: ../shell-action
+      uses: ./shell-action
       with:
         commands: ${{ inputs.commands }}
 
