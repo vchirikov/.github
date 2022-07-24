@@ -1,0 +1,42 @@
+name: shell
+description: Composite action which run shell command(s) and capture/print output
+author: Vladimir Chirikov
+branding:
+  color: gray-dark
+  icon: hash
+inputs:
+  commands:
+    required: true
+    description: >-
+      The bash command(s) to run. The stdout/stderr will be streamed to tty and captured to the output variable.
+      You can set multiple commands line by line. The latest command will be captured or the first which returns
+      the non-zero exit code. Exit code will be used as result of the action.
+      You can use $out to get previous command output, exit_code to get previous command exit_code and $cmd to get the current command line if it's needed.
+outputs:
+  out:
+    description: "Captured output of the command"
+    value: ${{ steps.cmd.outputs.out }}
+runs:
+  using: composite
+  steps:
+    - name: Run the commands
+      id: cmd
+      shell: bash --noprofile --norc {0}
+      env:
+        commands: ${{ inputs.commands }}
+      run: |-
+        exec 5>&1
+        while read -r cmd;
+        do
+          if [[ ! -z "$cmd" ]]; then
+            out=$(eval $cmd 2>&1 | tee >(cat - >&5) ; exit ${PIPESTATUS[0]})
+            exit_code = $?
+            if [ $exit_code -ne 0 ]; then
+              break;
+            fi;
+          fi;
+        done <<< "$commands";
+        out="${out//'%'/'%25'}" ; out="${out//$'\n'/'%0A'}" ; out="${out//$'\r'/'%0D'}"
+        echo "::set-output name=out::$out"
+        exec 5>&-
+        exit $exit_code
