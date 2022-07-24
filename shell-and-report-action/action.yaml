@@ -13,8 +13,9 @@ inputs:
       the non-zero exit code. Exit code will be used as result of the action.
       You can use $out to get previous command output, exit_code to get previous command exit_code and $cmd to get the current command line if it's needed.
   token:
-    required: true
-    description: GitHub Token to create comments.
+    required: false
+    description: GitHub Token (Personal access token (PAT)) to create comments.
+    default: ${{ github.token }}
   report-start:
     required: false
     description: "If not empty, a command start will be reported using this template."
