@@ -12,6 +12,9 @@ inputs:
       You can set multiple commands line by line. The latest command will be captured or the first which returns
       the non-zero exit code. Exit code will be used as result of the action.
       You can use $out to get previous command output, exit_code to get previous command exit_code and $cmd to get the current command line if it's needed.
+  token:
+    required: true
+    description: GitHub Token to create comments.
   report-start:
     required: false
     description: "If not empty, a command start will be reported using this template."
@@ -23,10 +26,6 @@ inputs:
   report-failure:
     required: false
     description: "If not empty, a failure will be reported using this template. You can use {0} in template to paste command output."
-    default: ""
-  token:
-    required: false
-    description: GitHub Token to create comments.
     default: ""
 
 outputs:
@@ -46,7 +45,7 @@ runs:
 
     - name: Run the commands
       id: cmd
-      uses: ./shell-action
+      uses: vchirikov/.github/shell-action@master
       with:
         commands: ${{ inputs.commands }}
 
