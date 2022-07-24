@@ -12,6 +12,10 @@ inputs:
       You can set multiple commands line by line. The latest command will be captured or the first which returns
       the non-zero exit code. Exit code will be used as result of the action.
       You can use $out to get previous command output, exit_code to get previous command exit_code and $cmd to get the current command line if it's needed.
+  grouping:
+    required: false
+    description: Create a group foreach command. Use "true"/"false" strings.
+    default: "true"
 outputs:
   out:
     description: "Captured output of the command"
@@ -24,13 +28,20 @@ runs:
       shell: bash --noprofile --norc {0}
       env:
         commands: ${{ inputs.commands }}
+        grouping: ${{ inputs.grouping }}
       run: |-
         exec 5>&1
         while read -r cmd;
         do
           if [[ ! -z "$cmd" ]]; then
+            if [[ "$grouping" = "true" ]]; then
+              escaped = $cmd
+              escaped="${escaped//'%'/'%25'}" ; escaped="${escaped//$'\n'/'%0A'}" ; escaped="${escaped//$'\r'/'%0D'}"
+              echo "::group::$escaped"
+            fi;
             out=$(eval $cmd 2>&1 | tee >(cat - >&5) ; exit ${PIPESTATUS[0]})
             exit_code = $?
+            [[ "$grouping" = "true" ]] && echo "::endgroup::"
             if [ $exit_code -ne 0 ]; then
               break;
             fi;
