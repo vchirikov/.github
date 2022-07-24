@@ -39,7 +39,7 @@ runs:
               escaped="${cmd//'%'/'%25'}" ; escaped="${escaped//$'\n'/'%0A'}" ; escaped="${escaped//$'\r'/'%0D'}"
               echo "::group::$escaped"
             fi;
-            out=$(eval $cmd 2>&1 | tee >(cat - >&5) ; exit ${PIPESTATUS[0]})
+            out=$(set -o pipefail; eval $cmd 2>&1 | tee >(cat - >&5) ; exit ${PIPESTATUS[0]})
             exit_code=$?
             [[ "$grouping" = "true" ]] && echo "::endgroup::"
             if [ $exit_code -ne 0 ]; then
