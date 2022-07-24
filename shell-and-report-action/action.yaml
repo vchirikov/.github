@@ -1,0 +1,67 @@
+name: shell & report
+description: Composite action which run shell command(s), capture/print output and report the output to PR
+author: Vladimir Chirikov
+branding:
+  color: gray-dark
+  icon: hash
+inputs:
+  commands:
+    required: true
+    description: >-
+      The bash command(s) to run. The stdout/stderr will be streamed to tty and captured to the output variable.
+      You can set multiple commands line by line. The latest command will be captured or the first which returns
+      the non-zero exit code. Exit code will be used as result of the action.
+      You can use $out to get previous command output, exit_code to get previous command exit_code and $cmd to get the current command line if it's needed.
+  report-start:
+    required: false
+    description: "If not empty, a command start will be reported using this template."
+    default: ""
+  report-success:
+    required: false
+    description: "If not empty, a success result will be reported using this template. You can use {0} in template to paste command output."
+    default: ""
+  report-failure:
+    required: false
+    description: "If not empty, a failure will be reported using this template. You can use {0} in template to paste command output."
+    default: ""
+  token:
+    required: false
+    description: GitHub Token to create comments.
+    default: ${{ secrets.GITHUB_TOKEN }}
+
+outputs:
+  out:
+    description: "Captured output of the command"
+    value: ${{ steps.cmd.outputs.out }}
+runs:
+  using: composite
+  steps:
+    - name: Report start
+      if: ${{ inputs.report-start != '' }}
+      uses: mshick/add-pr-comment@07f690343c25a94e24a8acb70d03c86b701ae322
+      with:
+        repo-token: ${{ inputs.token }}
+        message: ${{ inputs.report-start }}
+        allow-repeats: true
+
+    - name: Run the commands
+      id: cmd
+      uses: ../shell-action
+      with:
+        commands: ${{ inputs.commands }}
+
+    - name: Report success
+      if: ${{ inputs.report-success != '' && steps.cmd.outcome == 'success' }}
+      uses: mshick/add-pr-comment@07f690343c25a94e24a8acb70d03c86b701ae322
+      with:
+        repo-token: ${{ inputs.token }}
+        message: ${{ format(inputs.report-success, steps.cmd.outputs.out) }}
+        allow-repeats: true
+
+    - name: Report failure
+      if: ${{ inputs.report-failure != '' && steps.cmd.outcome == 'failure' }}
+      uses: mshick/add-pr-comment@07f690343c25a94e24a8acb70d03c86b701ae322
+      with:
+        repo-token: ${{ inputs.token }}
+        message: ${{ format(inputs.report-failure, steps.cmd.outputs.out) }}
+        allow-repeats: true
