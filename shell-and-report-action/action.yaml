@@ -28,11 +28,13 @@ inputs:
     required: false
     description: "If not empty, a failure will be reported using this template. You can use {0} in template to paste command output."
     default: ""
-
 outputs:
   out:
     description: "Captured output of the command"
     value: ${{ steps.cmd.outputs.out }}
+  dynamic:
+    description: JSON dictionary of dynamic output values
+    value: ${{ steps.cmd.outputs.dynamic }}
 runs:
   using: composite
   steps:

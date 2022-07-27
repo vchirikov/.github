@@ -20,6 +20,9 @@ outputs:
   out:
     description: "Captured output of the command"
     value: ${{ steps.cmd.outputs.out }}
+  dynamic:
+    description: JSON dictionary of dynamic output values
+    value: ${{ toJson(steps.cmd.outputs) }}
 runs:
   using: composite
   steps:
