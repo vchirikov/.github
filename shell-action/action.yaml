@@ -50,7 +50,8 @@ runs:
             fi;
           fi;
         done <<< "$commands";
-        out="${out//'%'/'%25'}" ; out="${out//$'\n'/'%0A'}" ; out="${out//$'\r'/'%0D'}"
-        echo "::set-output name=out::$out"
+        delimiter="__gh_1oFF__" ; eol=$'\n'
+        key='out'; val="$out"
+        echo "${key}<<${delimiter}${eol}${val}${eol}${delimiter}" >> $GITHUB_OUTPUT
         exec 5>&-
         exit $exit_code
