@@ -1,0 +1,36 @@
+{
+  "maxNodeModuleJsDepth": 1,
+  "compilerOptions": {
+    "newLine": "lf",
+    "charset": "utf-8",
+    "emitBOM": false,
+    "noEmitOnError": true,
+    "baseUrl": ".",
+    "target": "ES2019",
+    // looks like github actions run only commonjs, so
+    "module": "commonjs",
+    "outDir": "./out",
+    "rootDir": "./src",
+    "strict": true,
+    "noImplicitAny": true,
+    "moduleDetection": "force",
+    "moduleResolution": "node",
+    "moduleSuffixes": [
+      ""
+    ],
+    "skipLibCheck": false,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+  },
+  "include": [
+    "src/**/*.ts",
+  ],
+  "exclude": [
+    "node_modules",
+  ],
+  "ts-node": {
+    // we don't need to check types for build scripts, leave it for IDE
+    "transpileOnly": true,
+    "esm": false
+  }
+}

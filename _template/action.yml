@@ -1,0 +1,10 @@
+name: gh-action-templpate
+description: gh-action-templpate
+author: Vladimir Chirikov
+branding:
+  color: gray-dark
+  icon: hash
+inputs: {}
+runs:
+  using: node16
+  main: dist/index.js
