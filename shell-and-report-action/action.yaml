@@ -28,6 +28,13 @@ inputs:
     required: false
     description: "If not empty, a failure will be reported using this template. You can use {0} in template to paste command output."
     default: ""
+  message-id:
+    required: false
+    description: >-
+      If empty the message will be repeated, if some other value -
+      will try to use existing message with the message-id
+    default: ""
+
 outputs:
   out:
     description: "Captured output of the command"
@@ -40,30 +47,44 @@ runs:
   steps:
     - name: Report start
       if: ${{ inputs.report-start != '' }}
-      uses: mshick/add-pr-comment@07f690343c25a94e24a8acb70d03c86b701ae322
+      uses: mshick/add-pr-comment@a65df5f64fc741e91c59b8359a4bc56e57aaf5b1
       with:
         repo-token: ${{ inputs.token }}
         message: ${{ inputs.report-start }}
-        allow-repeats: true
+        allow-repeats: ${{ fromJSON('["true", "false"]')[inputs.message-id == ''] }}
+        message-id: ${{ inputs.message-id }}
 
     - name: Run the commands
       id: cmd
       uses: vchirikov/.github/shell-action@master
       with:
         commands: ${{ inputs.commands }}
+        out-file: /tmp/shell-and-report-action.log
 
-    - name: Report success
-      if: ${{ inputs.report-success != '' && steps.cmd.outcome == 'success' }}
-      uses: mshick/add-pr-comment@07f690343c25a94e24a8acb70d03c86b701ae322
+    - name: Format the message
+      shell: bash --noprofile --norc {0}
+      if: ${{ always() && (inputs.report-success != '' || inputs.report-failure != '') }}
+      env:
+        outcome: ${{ steps.cmd.outcome }}
+        success: ${{ inputs.report-success }}
+        failure: ${{ inputs.report-failure }}
+      # TODO: should we do something on cancel?
+      run: |-
+        echo '' > /tmp/shell-and-report-action.msg
+        if [[ "$outcome" = "success" ]]; then
+          echo "$success" > /tmp/shell-and-report-action.msg
+        fi;
+        if [[ "$outcome" = "failure" ]]; then
+          echo "$failure" > /tmp/shell-and-report-action.msg
+        fi;
+        sed -i -e '/{0}/{r /tmp/shell-and-report-action.log' -e 'd;}' /tmp/shell-and-report-action.msg
+
+    - name: Report outcome
+      # TODO: should we do something on cancel?
+      if: ${{ always() && ( (inputs.report-success != '' && steps.cmd.outcome == 'success' ) || (inputs.report-failure != '' && steps.cmd.outcome == 'failure') ) }}
+      uses: mshick/add-pr-comment@a65df5f64fc741e91c59b8359a4bc56e57aaf5b1
       with:
         repo-token: ${{ inputs.token }}
-        message: ${{ format(inputs.report-success, steps.cmd.outputs.out) }}
-        allow-repeats: true
-
-    - name: Report failure
-      if: ${{ failure() && inputs.report-failure != '' && steps.cmd.outcome == 'failure' }}
-      uses: mshick/add-pr-comment@07f690343c25a94e24a8acb70d03c86b701ae322
-      with:
-        repo-token: ${{ inputs.token }}
-        message: ${{ format(inputs.report-failure, steps.cmd.outputs.out) }}
-        allow-repeats: true
+        allow-repeats: ${{ fromJSON('["true", "false"]')[inputs.message-id == ''] }}
+        message-id: ${{ inputs.message-id }}
+        message-path: /tmp/shell-and-report-action.msg
