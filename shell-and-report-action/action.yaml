@@ -31,8 +31,8 @@ inputs:
   message-id:
     required: false
     description: >-
-      If empty the message will be repeated, if some other value -
-      will try to use existing message with the message-id
+      If the message-id is empty, the action will repeat the message,
+      if it's not the action will try to use an existing message with the same message-id
     default: ""
 
 outputs:
@@ -85,6 +85,6 @@ runs:
       uses: mshick/add-pr-comment@a65df5f64fc741e91c59b8359a4bc56e57aaf5b1
       with:
         repo-token: ${{ inputs.token }}
-        allow-repeats: ${{ fromJSON('["true", "false"]')[inputs.message-id == ''] }}
+        allow-repeats: ${{ fromJSON('["false", "true"]')[inputs.message-id == ''] }}
         message-id: ${{ inputs.message-id }}
         message-path: /tmp/shell-and-report-action.msg
