@@ -47,7 +47,7 @@ runs:
   steps:
     - name: Report start
       if: ${{ inputs.report-start != '' }}
-      uses: mshick/add-pr-comment@v2
+      uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2
       with:
         repo-token: ${{ inputs.token }}
         message: ${{ inputs.report-start }}
@@ -82,7 +82,7 @@ runs:
     - name: Report outcome
       # TODO: should we do something on cancel?
       if: ${{ always() && ( (inputs.report-success != '' && steps.cmd.outcome == 'success' ) || (inputs.report-failure != '' && steps.cmd.outcome == 'failure') ) }}
-      uses: mshick/add-pr-comment@v2
+      uses: mshick/add-pr-comment@b8f338c590a895d50bcbfa6c5859251edc8952fc # v2
       with:
         repo-token: ${{ inputs.token }}
         allow-repeats: ${{ fromJSON('["false", "true"]')[inputs.message-id == ''] }}
