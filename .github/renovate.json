@@ -1,19 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "helpers:pinGitHubActionDigests"
+  ],
   "addLabels": [
     "deps",
     "{{{manager}}}"
-  ],
-  "customManagers": [
-    {
-      "customType": "regex",
-      "fileMatch": [
-        "^\\.github/workflows/[^/]+\\.ya?ml$",
-        "\\/action\\.ya?ml$"
-      ],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)(?: (lookupName|packageName)=(?<packageName>[^\\s]+?))?(?: versioning=(?<versioning>[^\\s]+?))?(?: extractVersion=(?<extractVersion>[^\\s]+?))?(?: registryUrl=(?<registryUrl>[^\\s]+?))?\\s(?:uses:)\\s*[\"']?(.*?)@(?<currentValue>.*?)[\"']?\\s"
-      ]
-    }
   ]
 }

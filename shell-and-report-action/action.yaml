@@ -47,7 +47,6 @@ runs:
   steps:
     - name: Report start
       if: ${{ inputs.report-start != '' }}
-      # renovate: datasource=github-releases depName=mshick/add-pr-comment
       uses: mshick/add-pr-comment@v2
       with:
         repo-token: ${{ inputs.token }}
@@ -83,7 +82,6 @@ runs:
     - name: Report outcome
       # TODO: should we do something on cancel?
       if: ${{ always() && ( (inputs.report-success != '' && steps.cmd.outcome == 'success' ) || (inputs.report-failure != '' && steps.cmd.outcome == 'failure') ) }}
-      # renovate: datasource=github-releases depName=mshick/add-pr-comment
       uses: mshick/add-pr-comment@v2
       with:
         repo-token: ${{ inputs.token }}
