@@ -56,7 +56,7 @@ runs:
 
     - name: Run the commands
       id: cmd
-      uses: vchirikov/.github/shell-action@master
+      uses: vchirikov/.github/shell-action@09943a91efde8de5c9a9953943f2647542fa879b # master
       with:
         commands: ${{ inputs.commands }}
         out-file: /tmp/shell-and-report-action.log
